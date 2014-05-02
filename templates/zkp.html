@@ -1,0 +1,151 @@
+<html>
+<head>
+	<title>6.857 TFZKP Authentication</title>
+	<link href="static/css/bootstrap.min.css" rel="stylesheet" media="screen">
+	<link href="static/css/application.css" rel="stylesheet" media="screen">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body>
+<div class="container">
+<div class="jumbotron">
+<h1>6.857 TFZKP Authentication</h1>
+<p>This is our final project for 6.857 - Networks Security Spring 2014.</p>
+</div>
+
+
+
+<div class="flash" id="flash" name ="flash" style="color:#0000ff;">
+	{% with messages = get_flashed_messages() %}
+		{% if messages %}
+			{% for message in messages %}
+				{{ message }}
+				<br />
+			{% endfor %}
+		{% endif %}
+	{% endwith %}
+</div>
+
+
+<br />
+
+
+
+	<strong>Initiate Zero Knowledge Proof</strong>
+	<form id="zkp_form" name="zkp_form" class="zkp_form" action="">
+		<div class="form-group" style="width:18%">
+		<input id="username" name="username" type="text" class="form-control" placeholder="Username" autofocus />
+		</div>
+		<div class="form-group" style="width:18%">
+			<input id="password" name="password" type="password" class="form-control" placeholder="Password" autofocus />
+		</div>
+		<div>
+			<button class="btn btn-primary" type="button" onclick="doZKP()">Get Token</button>
+			<button class="btn btn-primary" type="button" onclick="goToHome()">Home Page</button>
+		</div>
+	</form>
+
+
+
+<div class ="page-header"> </div>
+
+<footer>
+  <p>Copyright 2014 by Quan Nguyen</p>
+  <p>Contact information: <a href="mailto:qdnguyen@mit.edu">qdnguyen@mit.edu</a>.</p>
+</footer>
+
+<script type="text/javascript" src="static/js/jquery-2.0.3.min.js?v=00005"></script>
+<script type="text/javascript" src="static/js/reconnecting-websocket.min.js?v=00002"></script>
+<script type="text/javascript" src="static/js/application.js?v=00002"></script>
+
+<script>
+
+
+
+function goToHome () {
+	window.location = window.location.origin;
+};
+
+
+function doZKP() {
+  var NUM_CHALLENGE = 35;
+  var num_proofs = 0;
+  // var G = 98;
+  // var P = 2698727;
+  var G = 98;
+  var P = 1000667;
+  var username = document.zkp_form.username.value;
+  var x = document.zkp_form.password.value.hashCode() % P;
+  var URL = window.location.origin + '/zkp';
+  var k = Math.floor((Math.random() * (P - x)) + 1);
+  var commitment = pow(G, k, P);
+ 
+ // console.log(x)
+ // console.log(k)
+ // console.log(commitment)
+  if ($("#username")[0].value == "" || $("#password")[0].value == "") {
+  		alert("Please fill out all fields")
+  		return false;
+  }
+
+  document.getElementById('flash').innerHTML = "";
+  var reg_request = $.ajax({
+    url: URL,
+    type: 'POST',
+    data: {username : username,
+    	commitment : commitment,
+    	command : "INITZKP",
+    },
+    success: function (data) {
+    	args = data.split(':');
+    	// console.log(args);
+        cmd = args[0];
+        if (cmd == 'NOUSER')
+        	document.getElementById('flash').innerHTML = "Username is invalid";
+        else if (cmd == 'CHALLENGE')
+        	prove(args);
+    },
+    error: function (data) {
+        console.log(data);
+    }
+  });
+
+  function prove (args) {
+  	document.getElementById('flash').innerHTML = "Please wait for ZKP to finish ... " + parseInt(100 * num_proofs/NUM_CHALLENGE) + "%";
+  	// var response = add(k, multiply(x, parseInt(args[1]), P), P);
+  	var response = parseInt(args[1])*x + k;
+ 
+ 	// piggy back --> send new commitment
+ 	k = Math.floor((Math.random() * (P - x)) + 1);
+ 	commitment = pow(G, k, P);
+
+  	$.ajax({
+	    url: URL,
+	    type: 'POST',
+	    data: {username : username,
+	    	command : "ZKP",
+	    	response : response,
+	    	commitment : commitment,
+	    },
+	    success: function (data) {
+	    	args = data.split(':');
+	        cmd = args[0];
+	        if (cmd == 'FAIL')
+	        	document.getElementById('flash').innerHTML = "<font color='red'> Failed to prove knowledge of password </font>";
+	        else if (cmd == 'PASS')
+	        	document.getElementById('flash').innerHTML = "Your token ---> &nbsp;<strong><font size='5' color='red'>" +args[1] +"</font></strong>";
+	        else if (cmd == 'CHALLENGE') {
+	        	num_proofs++;
+	        	prove(args); // recursive call
+	        } 
+	    },
+	    error: function (data) {
+	        console.log(data);
+	    }
+  	});
+  };
+}
+</script>
+
+</body>
+</html>

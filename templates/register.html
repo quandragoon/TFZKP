@@ -1,0 +1,121 @@
+<html>
+<head>
+	<title>6.857 TFZKP Authentication</title>
+	<link href="static/css/bootstrap.min.css" rel="stylesheet" media="screen">
+	<link href="static/css/application.css" rel="stylesheet" media="screen">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<script type="text/javascript" src="static/js/jquery-2.0.3.min.js?v=00005"></script>
+<script type="text/javascript" src="static/js/reconnecting-websocket.min.js?v=00002"></script>
+<script type="text/javascript" src="static/js/application.js?v=00002"></script>
+<body>
+<div class="container">
+<div class="jumbotron">
+<h1>6.857 TFZKP Authentication</h1>
+<p>This is our final project for 6.857 - Networks Security Spring 2014.</p>
+</div>
+
+
+
+<div class="flash" id="flash" style="color:#ff0000;">
+	{% with messages = get_flashed_messages() %}
+		{% if messages %}
+			{% for message in messages %}
+				{{ message }}
+				<br />
+			{% endfor %}
+		{% endif %}
+	{% endwith %}
+</div>
+
+<br />
+
+<!--   <div class="register" id="register">
+	<strong>New User Registration</strong>
+	<form action="" method=post>
+		username: <input type=text name=username />
+		<br />
+		gx: <input type=text name=gx />
+		<br />
+		<input type=submit value=Register>
+
+		<br /><br/ >
+	</form> -->
+
+
+  <div class="register" id="register">
+	<strong>New User Registration</strong>
+	<form id = "reg_form" name = "reg_form" class="reg_form" action="" method=post>
+		<div class="form-group" style="width:17%">
+		<input id = "username" name="username" type="text" class="form-control" placeholder="Username" autofocus />
+		</div>
+		<div class="form-group" style="width:17%">
+			<input id = "gx" name="gx" type="password" class="form-control" placeholder="Password" autofocus />
+		</div>
+		<div>
+			<button class="btn btn-primary" type="submit">Register</button>
+			<button class="btn btn-primary" type="button" onclick="goToHome()">Home Page</button>
+		</div>
+	</form>
+
+
+<script type="text/javascript">
+
+$("#reg_form").submit(function() {
+	  if ($("#username")[0].value == "" || $("#gx")[0].value == "") {
+	  		alert("Please fill out all fields")
+	  		return false;
+	  }
+	 
+	  // var P = 2698727;
+	  var P = 1000667;
+	  var G = 98;
+      var username = $("#username")[0].value;
+      var x   = $("#gx")[0].value.hashCode() % P;
+      var y = pow(G, x, P);
+      $("#gx").val(y);
+      return true;
+});
+
+// function doReg() {
+//   var P = 12345
+//   var G = 123
+//   var username = document.reg_form.username.value;
+//   var x = document.reg_form.gx.value.hashCode();
+//   var URL = window.location.origin + '/register';
+//   var y = pow(G, x, P);
+
+
+//   document.getElementById('flash').innerHTML = "";
+//   var reg_request = $.ajax({
+//     url: URL,
+//     type: 'POST',
+//     data: {username : username,
+//     	gx : y,
+//     }});
+// }
+
+</script>
+
+<!-- 	<div class="page-header">
+<h1>Chat</h1>
+</div>
+	<div id="chat-text">
+</div>
+</div> -->
+
+<div class ="page-header"> </div>
+
+<footer>
+  <p>Copyright 2014 by Quan Nguyen</p>
+  <p>Contact information: <a href="mailto:qdnguyen@mit.edu">qdnguyen@mit.edu</a>.</p>
+</footer>
+
+
+<script>
+function goToHome () {
+	window.location = window.location.origin;
+};
+</script>
+</body>
+</html>

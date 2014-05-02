@@ -1,0 +1,95 @@
+<html>
+<head>
+	<title>6.857 TFZKP Authentication</title>
+	<link href="static/css/bootstrap.min.css" rel="stylesheet" media="screen">
+	<link href="static/css/application.css" rel="stylesheet" media="screen">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<script type="text/javascript" src="static/js/jquery-2.0.3.min.js?v=00005"></script>
+<script type="text/javascript" src="static/js/reconnecting-websocket.min.js?v=00003"></script>
+<script type="text/javascript" src="static/js/application.js?v=00003"></script>
+
+<body>
+
+<script language="javascript" type="text/javascript"> 
+	function goToReg () {
+		window.location = window.location.origin + '/register';
+	};
+
+	function goToZKP () {
+		window.location = window.location.origin + '/zkp';
+	};
+
+</script>
+
+<div class="container">
+<div class="jumbotron">
+<h1>6.857 TFZKP Authentication</h1>
+<p>This is our final project for 6.857 - Networks Security Spring 2014.</p>
+<p style="font-size:15px;">This login system is based on a zero knowledge proof (ZKP). A token is required for every login and is obtained by initiating ZKP.</p>
+</div>
+
+
+<div class="flash" id="flash" style="color:#ff0000;">
+	{% with messages = get_flashed_messages() %}
+		{% if messages %}
+			{% for message in messages %}
+				{{ message }}
+				<br />
+			{% endfor %}
+		{% endif %}
+	{% endwith %}
+</div>
+
+<br />
+
+<!-- <form id="login-form" class="form-inline"> -->
+<form id="login" name="login" class="login" action="../login" method=post>
+<div class="form-group">
+<input id="username" name="username" type="text" class="form-control" placeholder="Username" style="width:15%" autofocus />
+</div>
+<div class="form-group">
+	<input id="token" name="token" type="password" class="form-control" placeholder="Token" style="width:15%" autofocus />
+</div>
+	<button class="btn btn-primary" type="submit" style="width:15%">Sign in</button>
+
+</form>
+
+
+
+<div>
+	<button class="btn btn-primary" onclick="goToZKP()";>Start ZKP</button>
+	<button class="btn btn-primary" onclick="goToReg()";>Register</button>
+</div>
+
+
+<script type="text/javascript">
+
+$("#login").submit(function() {
+	  if ($("#username")[0].value == "" || $("#token")[0].value == "") {
+	  		alert("Please fill out all fields")
+	  		return false;
+	  }
+      return true;
+});
+</script>
+
+<!-- 	<div class="page-header">
+<h1>Chat</h1>
+</div>
+	<div id="chat-text">
+</div>
+</div> -->
+
+<div class ="page-header"> </div>
+
+<footer>
+  <p>Copyright 2014 by Quan Nguyen</p>
+  <p>Contact information: <a href="mailto:qdnguyen@mit.edu">qdnguyen@mit.edu</a>.</p>
+</footer>
+
+
+
+</body>
+</html>
