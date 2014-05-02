@@ -1,7 +1,5 @@
 Flask==0.10.1
 Flask-Login==0.2.10
-Flask-Mail==0.9.0
-Flask-Principal==0.4.0
 Flask-SQLAlchemy==1.0
 Flask-Security==1.7.1
 Flask-Sockets==0.1
@@ -9,19 +7,5 @@ Jinja2==2.7.2
 MarkupSafe==0.21
 PyRSS2Gen==1.0.0
 SQLAlchemy==0.8.3
-Twisted==12.2.0
-WTForms==1.0.5
 Werkzeug==0.9.4
-bonjour-py==0.3
-gevent==1.0
-gevent-websocket==0.9.3
-greenlet==0.4.2
 gunicorn==18.0
-itsdangerous==0.24
-macholib==1.5
-matplotlib==1.1.1
-modulegraph==0.10.1
-numpy==1.6.2
-passlib==1.6.2
-py2app==0.7.1
-pyOpenSSL==0.13
