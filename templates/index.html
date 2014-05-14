@@ -52,7 +52,10 @@
 <div class="form-group">
 	<input id="token" name="token" type="password" class="form-control" placeholder="Token" style="width:180" autofocus />
 </div>
-	<button class="btn btn-primary" type="submit" style="width:180" >Sign in</button>
+<div class="form-group">
+	<input id="cookie" name="cookie" type="text" style="display: none;" autofocus />
+</div>
+	<button class="btn btn-primary" type="submit" style="width:180">Sign in</button>
 
 </form>
 
@@ -60,17 +63,23 @@
 
 <div>
 	<button class="btn btn-primary" onclick="goToZKP()";>Start ZKP</button>
-	<button class="btn btn-primary" style="width:90" onclick="goToReg()";>Register</button>
+	<button class="btn btn-primary" style ="width:90" onclick="goToReg()";>Register</button>
 </div>
 
 
 <script type="text/javascript">
 
 $("#login").submit(function() {
+	console.log("HEY");
+	 if (document.cookie == "")
+	 	document.cookie = Math.random();
+
 	  if ($("#username")[0].value == "" || $("#token")[0].value == "") {
 	  		alert("Please fill out all fields")
 	  		return false;
 	  }
+
+	  $("#cookie")[0].value = document.cookie;
       return true;
 });
 </script>

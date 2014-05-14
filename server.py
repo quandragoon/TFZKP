@@ -1,6 +1,8 @@
 # chat.py
 import os
 import logging
+import redis
+import gevent
 from flask import Flask, render_template, flash, url_for, redirect, abort, request, g
 from flask_sockets import Sockets
 from flask_login import *
@@ -12,13 +14,14 @@ from flask.ext.security import login_required
 from flask.ext.login import login_user, logout_user, current_user
 import random
 import string
+import json
 
 
 
 # P = 2698727
 P = 1000667
 G = 98
-NUM_CHALLENGES = 35
+NUM_CHALLENGES = 20
 TOKEN_LEN = 6
 
 app = Flask(__name__)
@@ -28,7 +31,9 @@ sockets = Sockets(app)
 
 
 challenges_dict = {}
-token_dict = {}
+half_logged_in = {}
+token_dict1 = {}
+token_dict2 = {}
 
 
 from logging import StreamHandler
@@ -212,14 +217,45 @@ def login():
     token = request.form['token']
     user = dbsession.query(User).get(username)
     # if user.gx != token:
-    if (user is None) or (username not in token_dict.keys()) or (token != token_dict[username]):
+    if user is None:
+      flash('Username or Token is invalid')
+      return render_template('index.html')
+    elif username not in half_logged_in.keys(): 
+      if username in token_dict2.keys() and token == token_dict2[username]:
+        del token_dict2[username]
+        flash('You are being sniped. Please start over.')
+        return render_template('index.html')
+      if username not in token_dict1.keys() or token != token_dict1[username]:
         flash('Username or Token is invalid')
         return render_template('index.html')
-    del token_dict[username]
-    login_user(user, remember = True)
-    g.username = current_user.username
-    flash('Logged in successfully')
-    return render_template('home.html')
+      else: # if right token
+        half_logged_in[username] = request.form['cookie']
+        flash('Logged in halfway successfully.')
+        return render_template('zkp.html')
+
+    else: # if already half in
+      cookie = half_logged_in[username]
+      del half_logged_in[username]
+      if token == token_dict1[username]:
+        del token_dict1[username]
+        flash('You are being sniped. Please start over.')
+        return render_template('index.html')
+      if username not in token_dict2.keys() or token != token_dict2[username]:
+        flash('Username or Token is invalid')
+        return render_template('index.html')
+      else:
+        del token_dict1[username]
+        if cookie != request.form['cookie']:
+          flash('You are being sniped. Please start over.')
+          return render_template('index.html')
+        del token_dict2[username]
+        login_user(user, remember = True)
+        g.username = current_user.username
+        flash('Logged in successfully')
+        return render_template('home.html')
+
+
+
 
 
 
@@ -261,6 +297,7 @@ def zkp():
         username = request.form['username']
         commitment = int(request.form['commitment'])
         response = int(request.form['response'])
+
       except ValueError:
         if username in challenges_dict.keys():
           del challenges_dict[username]
@@ -273,8 +310,12 @@ def zkp():
 
       if challenges_dict[username].getCount() >= NUM_CHALLENGES:
         del challenges_dict[username]
-        token_dict[username] = generate_token(TOKEN_LEN)
-        return 'PASS:' + token_dict[username]
+        if username in half_logged_in:
+          token_dict2[username] = generate_token(TOKEN_LEN)
+          return 'PASS:' + token_dict2[username]
+        else:
+          token_dict1[username] = generate_token(TOKEN_LEN)
+          return 'PASS:' + token_dict1[username]
       else:
         challenges_dict[username].updateCommitment(commitment)
         return challenges_dict[username].generateNewC()
