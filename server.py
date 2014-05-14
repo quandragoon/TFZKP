@@ -1,8 +1,6 @@
 # chat.py
 import os
 import logging
-import redis
-import gevent
 from flask import Flask, render_template, flash, url_for, redirect, abort, request, g
 from flask_sockets import Sockets
 from flask_login import *
